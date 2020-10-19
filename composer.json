@@ -19,7 +19,8 @@
     "grayl/config": "^1",
     "grayl/gateway-common": "^1",
     "grayl/mixin-common": "^1",
-    "php": "~7.4"
+    "php": "~7.4",
+    "ext-pdo": "*"
   },
   "require-dev": {
     "phpunit/phpunit": "^9"
