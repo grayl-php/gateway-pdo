@@ -85,7 +85,7 @@
 
 
       /**
-       * Fetches the next result of a PDOQueryResponseData as an array
+       * Fetches the next result of a PDOQueryResponseData as an associative array
        *
        * @param PDOQueryResponseData $response_data The response object to fetch rows from
        *
@@ -103,6 +103,32 @@
          if ( ! empty ( $row ) ) {
             // Return the row
             return $row;
+         }
+
+         // Nothing found (PDO service returns boolean false)
+         return null;
+      }
+
+
+      /**
+       * Fetches all results of a PDOQueryResponseData as an array of associative arrays
+       *
+       * @param PDOQueryResponseData $response_data The response object to fetch rows from
+       *
+       * @return array[]
+       * @throws \PDOException
+       */
+      public function fetchAllRowsAsArray ( $response_data ): ?array
+      {
+
+         // Fetch the rows
+         $rows = $response_data->getAPIResponse()
+                               ->fetchAll( \PDO::FETCH_ASSOC );
+
+         // If the rows weren't empty, return them
+         if ( ! empty ( $rows ) ) {
+            // Return the row
+            return $rows;
          }
 
          // Nothing found (PDO service returns boolean false)
@@ -137,19 +163,19 @@
 
 
       /**
-       * Fetches all results of a PDOQueryResponseData as an array
+       * Fetches all results of a PDOQueryResponseData as an array of objects
        *
        * @param PDOQueryResponseData $response_data The response object to fetch rows from
        *
-       * @return array
+       * @return \stdClass[]
        * @throws \PDOException
        */
-      public function fetchAllAsArray ( $response_data ): ?array
+      public function fetchAllRowsAsObject ( $response_data ): ?array
       {
 
          // Fetch the rows
          $rows = $response_data->getAPIResponse()
-                               ->fetchAll( \PDO::FETCH_ASSOC );
+                               ->fetchAll( \PDO::FETCH_OBJ );
 
          // If the rows weren't empty, return them
          if ( ! empty ( $rows ) ) {

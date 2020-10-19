@@ -113,7 +113,7 @@
          $this->assertTrue( $response->isSuccessful() );
 
          // Test the result count
-         $this->assertGreaterThan( 0,
+         $this->assertGreaterThan( 1,
                                    $response->countRows() );
 
          // Get a row as an array
@@ -126,7 +126,75 @@
          $row = $response->fetchNextRowAsObject();
 
          // Test the data
+         $this->assertInstanceOf( \StdClass::class,
+                                  $row );
          $this->assertNotNull( $row->value );
+
+      }
+
+
+      /**
+       * Checks a PDOQueryResponseController when pulled as an array of associative arrays
+       *
+       * @param PDOQueryRequestController $request A PDOQueryRequestController to send to the gateway
+       *
+       * @depends testCreatePDOQueryRequestController
+       * @throws \Exception
+       */
+      public function testPDOQueryResponseControllerFetchAllAsArray ( PDOQueryRequestController $request ): void
+      {
+
+         // Send the request using the gateway
+         $response = $request->sendRequest();
+
+         // Test the data
+         $this->assertTrue( $response->isSuccessful() );
+
+         // Test the result count
+         $this->assertGreaterThan( 1,
+                                   $response->countRows() );
+
+         // Fetch all rows as an array
+         $array_rows = $response->fetchAllRowsAsArray();
+
+         // Test the data
+         $this->assertIsArray( $array_rows[ 0 ] );
+         $this->assertNotNull( $array_rows[ 0 ][ 'value' ] );
+         $this->assertNotNull( $array_rows[ 1 ][ 'value' ] );
+
+      }
+
+
+      /**
+       * Checks a PDOQueryResponseController when pulled as an array of objects
+       *
+       * @param PDOQueryRequestController $request A PDOQueryRequestController to send to the gateway
+       *
+       * @depends testCreatePDOQueryRequestController
+       * @throws \Exception
+       */
+      public function testPDOQueryResponseControllerFetchAllAsObject ( PDOQueryRequestController $request ): void
+      {
+
+         // Send the request using the gateway
+         $response = $request->sendRequest();
+
+         // Test the data
+         $this->assertTrue( $response->isSuccessful() );
+
+         // Test the result count
+         $this->assertGreaterThan( 1,
+                                   $response->countRows() );
+
+         // Fetch all rows as an object
+         $obj_rows = $response->fetchAllRowsAsObject();
+
+         // Test the data
+         $this->assertInstanceOf( \StdClass::class,
+                                  $obj_rows[ 0 ] );
+         $this->assertNotNull( $obj_rows[ 0 ]->value );
+         $this->assertNotNull( $obj_rows[ 1 ]->value );
+
       }
 
    }

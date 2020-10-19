@@ -33,7 +33,7 @@
 
 
       /**
-       * Fetches the next result of a PDOQueryResponseData as an array
+       * Fetches the next result of a PDOQueryResponseData as an associative array
        *
        * @return array
        * @throws \PDOException
@@ -43,6 +43,20 @@
 
          // Return the next row as an array
          return $this->response_service->fetchNextRowAsArray( $this->response_data );
+      }
+
+
+      /**
+       * Fetches all results of a PDOQueryResponseData as an array of associative arrays
+       *
+       * @return array[]
+       * @throws \PDOException
+       */
+      public function fetchAllRowsAsArray (): ?array
+      {
+
+         // Return all results as an array of associative arrays
+         return $this->response_service->fetchAllRowsAsArray( $this->response_data );
       }
 
 
@@ -61,16 +75,16 @@
 
 
       /**
-       * Fetches all results of a PDOQueryResponseData as an array
+       * Fetches all results of a PDOQueryResponseData as an array of objects
        *
-       * @return array
+       * @return \stdClass[]
        * @throws \PDOException
        */
-      public function fetchAllAsArray (): ?array
+      public function fetchAllRowsAsObject (): ?array
       {
 
-         // Return all results as an array
-         return $this->response_service->fetchAllAsArray( $this->response_data );
+         // Return all rows as an an array of objects
+         return $this->response_service->fetchAllRowsAsObject( $this->response_data );
       }
 
 
