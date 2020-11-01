@@ -3,6 +3,8 @@
    namespace Grayl\Gateway\PDO;
 
    use Grayl\Gateway\Common\GatewayPorterAbstract;
+   use Grayl\Gateway\PDO\Config\PDOAPIEndpoint;
+   use Grayl\Gateway\PDO\Config\PDOConfig;
    use Grayl\Gateway\PDO\Controller\PDOQueryRequestController;
    use Grayl\Gateway\PDO\Entity\PDOGatewayData;
    use Grayl\Gateway\PDO\Entity\PDOQueryRequestData;
@@ -13,7 +15,7 @@
 
    /**
     * Front-end for the PDO package
-    * @method PDOGatewayData getSavedGatewayDataEntity ( string $endpoint_id )
+    * @method PDOGatewayData getSavedGatewayDataEntity ( string $api_endpoint_id )
     *
     * @package Grayl\Gateway\PDO
     */
@@ -28,19 +30,26 @@
        *
        * @var string
        */
-      protected string $config_file = 'gateway.pdo.php';
+      protected string $config_file = 'gateway-pdo.php';
+
+      /**
+       * The PDOConfig instance for this gateway
+       *
+       * @var PDOConfig
+       */
+      protected $config;
 
 
       /**
        * Creates a new PDO object for use in a PDOGatewayData entity
        *
-       * @param array $credentials An array containing all of the credentials needed to create the gateway API
+       * @param PDOAPIEndpoint $api_endpoint A PDOAPIEndpoint with credentials needed to create a gateway API object
        *
        * @return \PDO
        * @throws \Exception
        * @throws \PDOException
        */
-      public function newGatewayAPI ( array $credentials ): object
+      public function newGatewayAPI ( $api_endpoint ): object
       {
 
          // PDO connection options
@@ -49,12 +58,16 @@
                       \PDO::ATTR_EMULATE_PREPARES   => false, ];
 
          // Create the DSN connection string
-         $dsn = "mysql:host=" . $credentials[ 'host' ] . ";port=" . $credentials[ 'port' ] . ";dbname=" . $credentials[ 'database' ] . ";charset=" . $credentials[ 'charset' ];
+         $dsn = 'mysql:';
+         $dsn .= 'host=' . $api_endpoint->getHost() . ';';
+         $dsn .= 'port=' . $api_endpoint->getPort() . ';';
+         $dsn .= 'dbname=' . $api_endpoint->getDatabase() . ';';
+         $dsn .= 'charset=' . $api_endpoint->getCharset();
 
          // Return the new API entity
          return new \PDO( $dsn,
-                          $credentials[ 'username' ],
-                          $credentials[ 'password' ],
+                          $api_endpoint->getUsername(),
+                          $api_endpoint->getPassword(),
                           $options );
       }
 
@@ -62,21 +75,21 @@
       /**
        * Creates a new PDOGatewayData entity
        *
-       * @param string $endpoint_id The API endpoint ID to use (typically "default" is there is only one API gateway)
+       * @param string $api_endpoint_id The API endpoint ID to use (typically "default" if there is only one API gateway)
        *
        * @return PDOGatewayData
        * @throws \Exception
        */
-      public function newGatewayDataEntity ( string $endpoint_id ): object
+      public function newGatewayDataEntity ( string $api_endpoint_id ): object
       {
 
          // Grab the gateway service
          $service = new PDOGatewayService();
 
-         // Get an API
-         $api = $this->newGatewayAPI( $service->getAPICredentials( $this->config,
-                                                                   $this->environment,
-                                                                   $endpoint_id ) );
+         // Get a new API
+         $api = $this->newGatewayAPI( $service->getAPIEndpoint( $this->config,
+                                                                $this->environment,
+                                                                $api_endpoint_id ) );
 
          // Configure the API as needed using the service
          $service->configureAPI( $api,
@@ -84,7 +97,7 @@
 
          // Return the gateway
          return new PDOGatewayData( $api,
-                                    $this->config->getConfig( 'name' ),
+                                    $this->config->getGatewayName(),
                                     $this->environment );
       }
 
@@ -92,7 +105,7 @@
       /**
        * Creates a new PDOQueryRequestController entity
        *
-       * @param string $database_id  The database ID (API endpoint ID) to use (typically "default" is there is only one API gateway)
+       * @param string $database_id  The database ID (API endpoint ID) to use (typically "default" if there is only one API gateway)
        * @param string $action       The action performed in this response (send, etc.)
        * @param string $sql_query    The full SQL query with named placeholders
        * @param array  $placeholders An array of named placeholders aand their values for the PDO statement
